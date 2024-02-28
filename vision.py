@@ -6,12 +6,10 @@ from transformers import AutoModel, AutoTokenizer
 import time
 import numpy as np
 
-# import os
-# os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
-
-model = AutoModel.from_pretrained('MiniCPM-V', trust_remote_code=True)
+model = AutoModel.from_pretrained('MiniCPM-V', trust_remote_code=True, torch_dtype=torch.bfloat16)
 tokenizer = AutoTokenizer.from_pretrained('MiniCPM-V', trust_remote_code=True)
-model.eval()
+# model.eval()
+model = model.to(device='mps', dtype=torch.float16)  # for Apple Silicon
 
 cap = cv2.VideoCapture(0)
 width, height = 640, 480
@@ -50,7 +48,8 @@ try:
             break
 
         model_start_time = time.time()
-        question = f'Tell me what is this person doing? And this is his previous action: {response_text}. Now predict the next action.'
+        # question = f'Tell me what is this person doing? And this is his previous action: {response_text}. Now predict the next action.'
+        question = f'Tell me what is this person doing?'
         msgs = [{'role': 'user', 'content': question}]
 
         res, context, _ = model.chat(

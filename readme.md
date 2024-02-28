@@ -11,3 +11,5 @@ This project is a simple application of the MiniCPM-V model for image recognitio
 2. Install the requirements by running `pip install -r requirements.txt`.
 
 3. Run the `vision.py` file by running `python vision.py`.
+
+4. Quit the application by pressing `q`.
