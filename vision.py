@@ -5,11 +5,22 @@ from PIL import Image
 from transformers import AutoModel, AutoTokenizer
 import time
 import numpy as np
+import os
+import argparse
+
+args = argparse.ArgumentParser()
+args.add_argument('--device', type=str, default='cpu')  # 'cpu' or 'cuda' or 'mps'
+
+DEVICE = args.parse_args().device
+QUESTION = f'Tell me what is this person doing?'
+
+print(f'Using device: {DEVICE}')
+print("Pid:", os.getpid())
+print("Original prompt:", QUESTION)
 
 model = AutoModel.from_pretrained('MiniCPM-V', trust_remote_code=True, torch_dtype=torch.bfloat16)
 tokenizer = AutoTokenizer.from_pretrained('MiniCPM-V', trust_remote_code=True)
-# model.eval()
-model = model.to(device='mps', dtype=torch.float16)  # for Apple Silicon
+model = model.to(device=DEVICE, dtype=torch.float16)
 
 cap = cv2.VideoCapture(0)
 width, height = 640, 480
@@ -48,9 +59,7 @@ try:
             break
 
         model_start_time = time.time()
-        # question = f'Tell me what is this person doing? And this is his previous action: {response_text}. Now predict the next action.'
-        question = f'Tell me what is this person doing?'
-        msgs = [{'role': 'user', 'content': question}]
+        msgs = [{'role': 'user', 'content': QUESTION}]
 
         res, context, _ = model.chat(
             image=image,
